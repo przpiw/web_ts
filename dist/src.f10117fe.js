@@ -117,7 +117,122 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/axios/lib/helpers/bind.js":[function(require,module,exports) {
+})({"src/models/Attributes.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Attributes = void 0;
+
+var Attributes = function () {
+  function Attributes(data) {
+    var _this = this;
+
+    this.data = data;
+
+    this.get = function (key) {
+      return _this.data[key];
+    };
+  }
+
+  Attributes.prototype.set = function (update) {
+    Object.assign(this.data, update);
+  };
+
+  Attributes.prototype.getAll = function () {
+    return this.data;
+  };
+
+  return Attributes;
+}();
+
+exports.Attributes = Attributes;
+},{}],"src/models/Model.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Model = void 0;
+
+var Model = function () {
+  function Model(attributes, events, sync) {
+    this.attributes = attributes;
+    this.events = events;
+    this.sync = sync;
+    this.on = this.events.on;
+    this.trigger = this.events.trigger;
+    this.get = this.attributes.get;
+  }
+
+  Model.prototype.set = function (update) {
+    this.attributes.set(update);
+    this.events.trigger('change');
+  };
+
+  Model.prototype.fetch = function () {
+    var _this = this;
+
+    var id = this.get('id');
+    if (typeof id !== 'number') throw new Error('Cannot fetch without an id');
+    this.sync.fetch(id).then(function (response) {
+      _this.set(response.data);
+    });
+  };
+
+  Model.prototype.save = function () {
+    var _this = this;
+
+    this.sync.save(this.attributes.getAll()).then(function (response) {
+      _this.trigger('save');
+    }).catch(function () {
+      _this.trigger('error');
+    });
+  };
+
+  return Model;
+}();
+
+exports.Model = Model;
+},{}],"src/models/Eventing.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Eventing = void 0;
+
+var Eventing = function () {
+  function Eventing() {
+    var _this = this;
+
+    this.events = {};
+
+    this.on = function (eventName, callback) {
+      var handlers = _this.events[eventName] || [];
+      handlers.push(callback);
+      _this.events[eventName] = handlers;
+    };
+
+    this.trigger = function (eventName) {
+      var handlers = _this.events[eventName];
+
+      if (!handlers || !handlers.length) {
+        return;
+      }
+
+      handlers.forEach(function (callback) {
+        callback();
+      });
+    };
+  }
+
+  return Eventing;
+}();
+
+exports.Eventing = Eventing;
+},{}],"node_modules/axios/lib/helpers/bind.js":[function(require,module,exports) {
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -1139,7 +1254,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"./../utils":"node_modules/axios/lib/utils.js","./../core/settle":"node_modules/axios/lib/core/settle.js","./../helpers/cookies":"node_modules/axios/lib/helpers/cookies.js","./../helpers/buildURL":"node_modules/axios/lib/helpers/buildURL.js","../core/buildFullPath":"node_modules/axios/lib/core/buildFullPath.js","./../helpers/parseHeaders":"node_modules/axios/lib/helpers/parseHeaders.js","./../helpers/isURLSameOrigin":"node_modules/axios/lib/helpers/isURLSameOrigin.js","../core/createError":"node_modules/axios/lib/core/createError.js"}],"../../../AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/process/browser.js":[function(require,module,exports) {
+},{"./../utils":"node_modules/axios/lib/utils.js","./../core/settle":"node_modules/axios/lib/core/settle.js","./../helpers/cookies":"node_modules/axios/lib/helpers/cookies.js","./../helpers/buildURL":"node_modules/axios/lib/helpers/buildURL.js","../core/buildFullPath":"node_modules/axios/lib/core/buildFullPath.js","./../helpers/parseHeaders":"node_modules/axios/lib/helpers/parseHeaders.js","./../helpers/isURLSameOrigin":"node_modules/axios/lib/helpers/isURLSameOrigin.js","../core/createError":"node_modules/axios/lib/core/createError.js"}],"../../../../../../../../usr/lib/node_modules/parcel-bundler/node_modules/process/browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
@@ -1485,7 +1600,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-},{"./utils":"node_modules/axios/lib/utils.js","./helpers/normalizeHeaderName":"node_modules/axios/lib/helpers/normalizeHeaderName.js","./core/enhanceError":"node_modules/axios/lib/core/enhanceError.js","./adapters/xhr":"node_modules/axios/lib/adapters/xhr.js","./adapters/http":"node_modules/axios/lib/adapters/xhr.js","process":"../../../AppData/Roaming/npm/node_modules/parcel-bundler/node_modules/process/browser.js"}],"node_modules/axios/lib/core/transformData.js":[function(require,module,exports) {
+},{"./utils":"node_modules/axios/lib/utils.js","./helpers/normalizeHeaderName":"node_modules/axios/lib/helpers/normalizeHeaderName.js","./core/enhanceError":"node_modules/axios/lib/core/enhanceError.js","./adapters/xhr":"node_modules/axios/lib/adapters/xhr.js","./adapters/http":"node_modules/axios/lib/adapters/xhr.js","process":"../../../../../../../../usr/lib/node_modules/parcel-bundler/node_modules/process/browser.js"}],"node_modules/axios/lib/core/transformData.js":[function(require,module,exports) {
 'use strict';
 
 var utils = require('./../utils');
@@ -1691,51 +1806,38 @@ module.exports = function mergeConfig(config1, config2) {
 
 },{"../utils":"node_modules/axios/lib/utils.js"}],"node_modules/axios/package.json":[function(require,module,exports) {
 module.exports = {
-  "_from": "axios",
-  "_id": "axios@0.21.4",
-  "_inBundle": false,
-  "_integrity": "sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==",
-  "_location": "/axios",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "axios",
-    "name": "axios",
-    "escapedName": "axios",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
+  "name": "axios",
+  "version": "0.21.4",
+  "description": "Promise based HTTP client for the browser and node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test",
+    "start": "node ./sandbox/server.js",
+    "build": "NODE_ENV=production grunt build",
+    "preversion": "npm test",
+    "version": "npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json",
+    "postversion": "git push && git push --tags",
+    "examples": "node ./examples/server.js",
+    "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "fix": "eslint --fix lib/**/*.js"
   },
-  "_requiredBy": [
-    "#USER",
-    "/"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axios/axios.git"
+  },
+  "keywords": [
+    "xhr",
+    "http",
+    "ajax",
+    "promise",
+    "node"
   ],
-  "_resolved": "https://registry.npmjs.org/axios/-/axios-0.21.4.tgz",
-  "_shasum": "c67b90dc0568e5c1cf2b0b858c43ba28e2eda575",
-  "_spec": "axios",
-  "_where": "C:\\Users\\IT\\Documents\\dev\\web",
-  "author": {
-    "name": "Matt Zabriskie"
-  },
-  "browser": {
-    "./lib/adapters/http.js": "./lib/adapters/xhr.js"
-  },
+  "author": "Matt Zabriskie",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/axios/axios/issues"
   },
-  "bundleDependencies": false,
-  "bundlesize": [
-    {
-      "path": "./dist/axios.min.js",
-      "threshold": "5kB"
-    }
-  ],
-  "dependencies": {
-    "follow-redirects": "^1.14.0"
-  },
-  "deprecated": false,
-  "description": "Promise based HTTP client for the browser and node.js",
+  "homepage": "https://axios-http.com",
   "devDependencies": {
     "coveralls": "^3.0.0",
     "es6-promise": "^4.2.4",
@@ -1771,36 +1873,21 @@ module.exports = {
     "webpack": "^4.44.2",
     "webpack-dev-server": "^3.11.0"
   },
-  "homepage": "https://axios-http.com",
+  "browser": {
+    "./lib/adapters/http.js": "./lib/adapters/xhr.js"
+  },
   "jsdelivr": "dist/axios.min.js",
-  "keywords": [
-    "xhr",
-    "http",
-    "ajax",
-    "promise",
-    "node"
-  ],
-  "license": "MIT",
-  "main": "index.js",
-  "name": "axios",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/axios/axios.git"
-  },
-  "scripts": {
-    "build": "NODE_ENV=production grunt build",
-    "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "examples": "node ./examples/server.js",
-    "fix": "eslint --fix lib/**/*.js",
-    "postversion": "git push && git push --tags",
-    "preversion": "npm test",
-    "start": "node ./sandbox/server.js",
-    "test": "grunt test",
-    "version": "npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"
-  },
-  "typings": "./index.d.ts",
   "unpkg": "dist/axios.min.js",
-  "version": "0.21.4"
+  "typings": "./index.d.ts",
+  "dependencies": {
+    "follow-redirects": "^1.14.0"
+  },
+  "bundlesize": [
+    {
+      "path": "./dist/axios.min.js",
+      "threshold": "5kB"
+    }
+  ]
 }
 ;
 },{}],"node_modules/axios/lib/helpers/validator.js":[function(require,module,exports) {
@@ -2242,7 +2329,7 @@ module.exports.default = axios;
 
 },{"./utils":"node_modules/axios/lib/utils.js","./helpers/bind":"node_modules/axios/lib/helpers/bind.js","./core/Axios":"node_modules/axios/lib/core/Axios.js","./core/mergeConfig":"node_modules/axios/lib/core/mergeConfig.js","./defaults":"node_modules/axios/lib/defaults.js","./cancel/Cancel":"node_modules/axios/lib/cancel/Cancel.js","./cancel/CancelToken":"node_modules/axios/lib/cancel/CancelToken.js","./cancel/isCancel":"node_modules/axios/lib/cancel/isCancel.js","./helpers/spread":"node_modules/axios/lib/helpers/spread.js","./helpers/isAxiosError":"node_modules/axios/lib/helpers/isAxiosError.js"}],"node_modules/axios/index.js":[function(require,module,exports) {
 module.exports = require('./lib/axios');
-},{"./lib/axios":"node_modules/axios/lib/axios.js"}],"src/models/User.ts":[function(require,module,exports) {
+},{"./lib/axios":"node_modules/axios/lib/axios.js"}],"src/models/ApiSync.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -2254,46 +2341,160 @@ var __importDefault = this && this.__importDefault || function (mod) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.User = void 0;
+exports.ApiSync = void 0;
 
 var axios_1 = __importDefault(require("axios"));
 
-var User = function () {
-  function User(data) {
-    this.data = data;
+var ApiSync = function () {
+  function ApiSync(rootUrl) {
+    this.rootUrl = rootUrl;
   }
 
-  User.prototype.get = function (propName) {
-    return this.data[propName];
+  ApiSync.prototype.fetch = function (id) {
+    return axios_1.default.get(this.rootUrl + "/" + id);
   };
 
-  User.prototype.set = function (update) {
-    Object.assign(this.data, update);
-  };
-
-  User.prototype.fetch = function () {
-    var _this = this;
-
-    axios_1.default.get("http://localhost:3000/users/" + this.get('id')).then(function (response) {
-      _this.set(response.data);
-    });
-  };
-
-  User.prototype.save = function () {
-    var id = this.get('id');
+  ApiSync.prototype.save = function (data) {
+    var id = data.id;
 
     if (id) {
-      axios_1.default.put("http://localhost:3000/users/" + id, this.data);
+      return axios_1.default.put(this.rootUrl + "/" + id, data);
     } else {
-      axios_1.default.post('http://localhost:3000/users', this.data);
+      return axios_1.default.post(this.rootUrl, data);
     }
   };
 
-  return User;
+  return ApiSync;
 }();
 
+exports.ApiSync = ApiSync;
+},{"axios":"node_modules/axios/index.js"}],"src/models/Collection.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Collection = void 0;
+
+var axios_1 = __importDefault(require("axios"));
+
+var Eventing_1 = require("./Eventing");
+
+var Collection = function () {
+  function Collection(rootUrl, deserialize) {
+    this.rootUrl = rootUrl;
+    this.deserialize = deserialize;
+    this.models = [];
+    this.events = new Eventing_1.Eventing();
+  }
+
+  Object.defineProperty(Collection.prototype, "on", {
+    get: function get() {
+      return this.events.on;
+    },
+    enumerable: false,
+    configurable: true
+  });
+  Object.defineProperty(Collection.prototype, "trigger", {
+    get: function get() {
+      return this.events.trigger;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
+  Collection.prototype.fetch = function () {
+    var _this = this;
+
+    axios_1.default.get(this.rootUrl).then(function (response) {
+      response.data.forEach(function (value) {
+        _this.models.push(_this.deserialize(value));
+      });
+
+      _this.trigger('change');
+    });
+  };
+
+  return Collection;
+}();
+
+exports.Collection = Collection;
+},{"axios":"node_modules/axios/index.js","./Eventing":"src/models/Eventing.ts"}],"src/models/User.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.User = void 0;
+
+var Attributes_1 = require("./Attributes");
+
+var Model_1 = require("./Model");
+
+var Eventing_1 = require("./Eventing");
+
+var ApiSync_1 = require("./ApiSync");
+
+var Collection_1 = require("./Collection");
+
+var rootUrl = 'http://localhost:3000/users';
+
+var User = function (_super) {
+  __extends(User, _super);
+
+  function User() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  User.buildUser = function (attrs) {
+    return new User(new Attributes_1.Attributes(attrs), new Eventing_1.Eventing(), new ApiSync_1.ApiSync(rootUrl));
+  };
+
+  User.buildUserCollection = function () {
+    return new Collection_1.Collection(rootUrl, function (json) {
+      return User.buildUser(json);
+    });
+  };
+
+  return User;
+}(Model_1.Model);
+
 exports.User = User;
-},{"axios":"node_modules/axios/index.js"}],"src/index.ts":[function(require,module,exports) {
+},{"./Attributes":"src/models/Attributes.ts","./Model":"src/models/Model.ts","./Eventing":"src/models/Eventing.ts","./ApiSync":"src/models/ApiSync.ts","./Collection":"src/models/Collection.ts"}],"src/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2302,22 +2503,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var User_1 = require("./models/User");
 
-var user = new User_1.User({});
-user.on('changed', function () {
-  console.log('Changed 1');
+var collection = User_1.User.buildUserCollection();
+collection.on('change', function () {
+  console.log(collection);
 });
-user.on('changed', function () {
-  console.log("changed 2");
-});
-user.on('removed', function () {
-  console.log('Removed was triggered');
-});
-user.trigger('changed');
-user.set({
-  age: 99,
-  name: 'John SMith'
-}); //user.save()
-},{"./models/User":"src/models/User.ts"}],"../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+collection.fetch();
+},{"./models/User":"src/models/User.ts"}],"../../../../../../../../usr/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -2345,7 +2536,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65381" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38261" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -2521,5 +2712,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/index.ts"], null)
+},{}]},{},["../../../../../../../../usr/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/index.ts"], null)
 //# sourceMappingURL=/src.f10117fe.js.map
